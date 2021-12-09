@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Subnet Evaluator - Web</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    
+    <body>
+        <h1 class="app_title" style="color: white; text-transform: uppercase;">
+            <a href="/" style="z-index: 1; background-color: rgba(0,0,0,0); color: white; text-transform: uppercase; text-decoration: none;">SUBNET EVALUATOR</a>
+        </h1>
+        <i class="fas fa-router"></i>
+        {% if y==0 %}
+        <form id="form1" method="POST" class="form" onsubmit="yourFunction1()">
+            <label style="font-size: 20px;" for="switch">Number of Switch:</label>
+            <input type="number" id="switch" name="switch" class="input2">
+            <br>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+        {% endif %}
+        {% if x>0 %}
+        <form id="form2" method="POST" class="form2" onsubmit="yourFunction2()">
+            {% for i in range(x) %}
+            <br>
+            <label style="font-size: 20px;" for="hosts{{i}}">Number of Hosts in Switch[{{i}}]:</label>
+            <input type="number" id="hosts{{i}}" name="hosts{{i}}" class="input2">
+            <br>
+            <br>
+            {% endfor %}
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+        {% endif %}
+        <script>
+            function yourFunction1() {
+                var action_src1 = "/hosts";
+                var your_form1 = document.getElementById('form1');
+                your_form1.action = action_src1;
+            }
+            function yourFunction2() {
+                var action_src1 = "/home";
+                var your_form1 = document.getElementById('form2');
+                your_form1.action = action_src1;
+            }
+        </script>
+
+    </body>
+</html>

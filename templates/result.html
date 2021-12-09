@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Subnet Evaluator - Web</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/visual copy.css')}}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    </head>
+    <body>
+        <div style="margin: auto;">
+            <div id="div1" class="div" style="width: 50px; height: 50px; top:50px; left:{{50+100*temp/2}}px;position:absolute;">
+                <img src="{{url_for('static', filename='res/router3.png')}}" alt="" class="image1">
+            </div>
+            {% for i in range(switch|length) %}
+            <div onclick="openForm1({{i}})" id="sdiv{{i}}" class="div sdiv{{i}} tooltip1" name="sdiv{{i}}" style="width: 50px; height: 50px; top:200px; left:{{50+100*(l[i]+(switch[i]-1)/2)}}px;position:absolute;">
+                <img src="{{url_for('static', filename='res/switch.png')}}" alt="" class="image1">
+                <span class="tooltiptext1">
+                    Default Gateway Address: {{sw_li[i][0]}} <br>
+                    CIDR: {{sw_li[i][1]}}
+                </span>
+            </div>
+                <div>
+                    {% for j in range(switch[i]) %}
+                        <div onclick="openForm({{i}},{{j}})" id="pc{{i}}_{{j}}" class="div pc{{i}}_{{j}} tooltip" name="pc{{i}}_{{j}}" style="width: 50px; height: 50px; top:350px;left:{{50+100*(l[i]+j)}}px;position: absolute;">
+                            <img src="{{url_for('static', filename='res/computer.png')}}" alt="" class="image1">
+                            <span class="tooltiptext">
+                                Host IP: {{pc_li[i][j][0]}}<br> 
+                                Subnet Mask: {{pc_li[i][j][1]}}<br>
+                                Defualt Gateway: {{pc_li[i][j][2]}}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        
+
+            <svg width="1750" height="400">
+
+                {% for i in range((switch|length)) %}
+                <line id="line{{i}}" stroke="darkgrey" stroke-width="5"/>
+                {% for j in range(switch[i]) %}
+                <line id="pcline{{i}}_{{j}}" stroke="darkgrey" stroke-width="5"/>
+                {% endfor %}
+                {% endfor %}
+
+            </svg>
+            {% if r==0 %}
+            <div style="top:500px;left:483px;position:absolute;font-size: 36px; color: chartreuse;">!!! ALL Values are OK !!!</div>
+            {% endif %}
+            {% if r==1 %}
+            <div style="top:550px;left:900px;position:absolute;">
+                <form action="/result" method="POST">
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+            <div style="color: white; margin-top: 50px;width:800px;">
+                <div style="height:100px; overflow-y:auto;">PC STATUS<br>
+                {% for i in range(pc_errors|length) %}
+                    Switch : {{pc_errors[i][0]}}
+                    PC: {{pc_errors[i][1]}}
+                    Status: {{pc_errors[i][2]}}<br>
+                {% endfor %}</div>
+                <div style="height:100px; overflow-y:auto;">SWITCH STATUS<br>
+                {% for i in range(sw_errors|length) %}
+                    Switch : {{sw_errors[i][0]}}
+                    PC: {{sw_errors[i][1]}}<br>
+                {% endfor %}</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="form-popup" id="myForm" >
+            <form action="" method="POST" id="your_form1" class="form-container" onsubmit="yourFunction1()">
+              <h1>Enter PC Details</h1>
+          
+              <label for="hostip"><b>Host IP</b></label>
+              <input class="input1" type="text" name="hostip" required>
+          
+              <label for="sm"><b>Subnet Mask</b></label>
+              <input class="input1" type="text" name="sm" required>
+
+              <label for="dg"><b>Default Gateway IP</b></label>
+              <input class="input1" type="text" name="dg" required>
+          
+              <input type="submit" class="btn set" value="SET">
+              <button type="button" class="btn cancel" onclick="closeForm()"><b style="background: transparent">Cancel</b></button>
+            </form>
+        </div>
+
+        <div class="form-popup" id="myForm1" >
+            <form action="" method="POST" id="your_form2" class="form-container" onsubmit="yourFunction2()">
+              <h1>Enter Switch Details</h1>
+
+              <label for="dg"><b>Default Gateway IP</b></label>
+              <input class="input1" type="text" name="dg" required>
+
+              <label for="cidr"><b>CIDR</b></label>
+              <input class="input1" type="number" name="cidr" required>
+          
+              <input type="submit" class="btn set" value="SET">
+              <button type="button" class="btn cancel" onclick="closeForm1()"><b style="background: transparent">Cancel</b></button>
+            </form>
+        </div>
+
+        <script>
+            var s,p;
+            function openForm(i,j) {
+              document.getElementById("myForm").style.display = "block";
+              s=i;
+              p=j;
+              console.log(s,p);
+            }
+
+            function openForm1(i) {
+              document.getElementById("myForm1").style.display = "block";
+              s=i;
+              console.log(s);
+            }
+            
+            function closeForm() {
+              document.getElementById("myForm").style.display = "none";
+            }
+
+            function closeForm1() {
+              document.getElementById("myForm1").style.display = "none";
+            }
+
+            function getPoint() {
+
+                var ns={{switch}};
+                var np={{n}}
+
+                for (let i = 0; i < np; i++)
+                {
+                    var target = document
+                        .getElementById("div1");
+
+                    var output = document
+                        .getElementById("sdiv"+i.toString());
+
+                    document.getElementById("line"+i.toString()).setAttribute("x1", (parseInt(target.offsetLeft)+40).toString()); 
+                    document.getElementById("line"+i.toString()).setAttribute("y1", (parseInt(target.offsetTop)+40).toString()); 
+                    document.getElementById("line"+i.toString()).setAttribute("x2", (parseInt(output.offsetLeft)+40).toString()); 
+                    document.getElementById("line"+i.toString()).setAttribute("y2", (parseInt(output.offsetTop)+40).toString()); 
+                    for (let j = 0; j < ns[i]; j++)
+                    {
+                        var target = document
+                            .getElementById("sdiv"+i.toString());
+
+                        var output = document
+                            .getElementById("pc"+i.toString()+"_"+j.toString());
+
+                        document.getElementById("pcline"+i.toString()+"_"+j.toString()).setAttribute("x1", (parseInt(target.offsetLeft)+40).toString()); 
+                        document.getElementById("pcline"+i.toString()+"_"+j.toString()).setAttribute("y1", (parseInt(target.offsetTop)+40).toString()); 
+                        document.getElementById("pcline"+i.toString()+"_"+j.toString()).setAttribute("x2", (parseInt(output.offsetLeft)+40).toString()); 
+                        document.getElementById("pcline"+i.toString()+"_"+j.toString()).setAttribute("y2", (parseInt(output.offsetTop)+40).toString());
+                    }
+                }
+		    }
+
+            function yourFunction1() {
+                console.log(s,p);
+                var action_src1 = "/pc/" + s + "/" + p;
+                var your_form1 = document.getElementById('your_form1');
+                your_form1.action = action_src1;
+            }
+
+            function yourFunction2() {
+                console.log(s);
+                var action_src1 = "/switch/" + s;
+                var your_form1 = document.getElementById('your_form2');
+                your_form1.action = action_src1;
+            }
+
+            window.onload=getPoint
+        </script>
+    </body>
+</html>
